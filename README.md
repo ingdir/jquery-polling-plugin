@@ -16,7 +16,7 @@ and also performs periodical garbage collection on the polling queue.
 
 Compatibility: jQuery 1.4+
 
-=== Basic usage:
+### Basic usage:
 
 ```javascript
 $('input').update(function(e) {
@@ -29,7 +29,7 @@ $('form').on('update', function(e) {
 
 ```
 
-=== Configuration API:
+### Configuration API:
 
 `$.fn.update.config()` (without arguments) returns the current configuration;
 
