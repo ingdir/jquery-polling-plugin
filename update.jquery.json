@@ -1,20 +1,19 @@
-﻿{
+{
     "name": "update",
     "title": "jQuery Polling Plugin",
     "description": "jQuery special event plugin that adds 'update' event to track any changes on DOM nodes (e.g. form element updates) with full power of jQuery Event API",
     "keywords": [
         "update",
-        "event"
+        "event",
         "poll",
         "polling",
         "form",
-        "form polling",
         "change",
         "input",
         "monitoring",
         "validation"
     ],
-    "version": "2.1",
+    "version": "2.1.0",
     "author": {
         "name": "Max Shirshin",
         "email": "max.shirshin@gmail.com"
