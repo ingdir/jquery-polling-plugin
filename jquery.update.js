@@ -2,7 +2,7 @@
  *
  * @author Max Shirshin
  * @description Plugin to track any type of change on any element, with jQuery "native" event API, based on polling
- * @version 2.2
+ * @version 2.1
  *
  */
 
@@ -121,9 +121,7 @@
 
     // provide a wrapper function similar to other events
     $.fn[eventName] = function(fn) {
-        return fn ? this.bind(eventName, fn) : this.each(function() {
-            $(this).trigger(eventName, { updatedValue: cfg.valFn(this) });
-        });
+        return fn ? this.bind(eventName, fn) : this.trigger(eventName);
     };
 
     // define API
