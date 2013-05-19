@@ -37,8 +37,8 @@
             cfg = {
                 // polling interval
                 delay: 100,  // msec
-                // how often the cache should be updated
-                cacheTimeout: 2000,
+                // how often the cache should be updated, -1 for "never"
+                cacheTimeout: 2000,  // msec
                 // how many elements may be queried in a polling round
                 aggregateNum: 5,
                 // jQuery selector to choose the elements to be polled
