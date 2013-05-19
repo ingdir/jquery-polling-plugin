@@ -29,6 +29,6 @@
     "download": "https://github.com/ingdir/jquery-polling-plugin",
 
     "dependencies": {
-        "jquery": ">=1.4"
+        "jquery": ">=1.4.2"
     }
 }
