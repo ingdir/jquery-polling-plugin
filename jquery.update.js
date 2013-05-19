@@ -2,7 +2,7 @@
  *
  * @author Max Shirshin
  * @description Plugin to track any type of change on any element, with jQuery "native" event API, based on polling
- * @version 2.1
+ * @version 2.2
  *
  */
 
@@ -42,7 +42,7 @@
             // accepts DOM element as a parameter
             valFn: function(el) { return $(el).val() },
             // function to determine whether two values are equal or not
-            eqFn: function(oldVal, newVal) {
+            eqFn: function(oldVal, newVal, el) {
                 return oldVal === newVal;
             }
         };
@@ -67,16 +67,18 @@
     // check whether the actual value has changed
     function processEvent(el) {
         var cachedVal = $.data(el, valueCache),
-            val = cfg.valFn(el);
+            val = cfg.valFn(el),
+            isEqual = cfg.eqFn(cachedVal, val, el);
 
-        if (cachedVal === undefined || cfg.eqFn(cachedVal, val)) {
+        if (cachedVal === undefined || isEqual) {
             // cache value
             $.data(el, valueCache, val);
-        } else if (! cfg.eqFn(cachedVal, val)) {
+        } else if (! isEqual) {
             $(el)
                 .data(valueCache, val)
                 .trigger(eventName, {
-                    updatedValue: val
+                    oldValue: cachedVal,
+                    newValue: val
                 });
         }
     }
@@ -94,8 +96,11 @@
                 addToPolling(this);
             });
 
-        // schedule next run
-        cacheTimeoutId = setTimeout(refreshCache, cfg.cacheTimeout);
+        // schedule next run, unless user explicitly stated
+        // that periodical updates aren't required
+        cacheTimeoutId = (cfg.cacheTimeout !== -1) ?
+            setTimeout(refreshCache, cfg.cacheTimeout) :
+            undefined;
 
         if ($pool.length === 0 && $source.length === 0) {
             clearTimeout(timeoutId);
@@ -129,13 +134,17 @@
         config: function(c) {
             if (c) {
                 $.extend(cfg, c);
+
+                // force cache refresh, since parameters have changed
+                clearTimeout(cacheTimeoutId);
+                refreshCache();
             } else {
                 return $.extend({}, cfg);
             }
         },
 
         reset: function() {
-            $.extend(cfg, defaults);
+            $.fn[eventName].config(defaults);
         },
 
         debug: function() {
