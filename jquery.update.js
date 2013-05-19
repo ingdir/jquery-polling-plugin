@@ -8,8 +8,14 @@
 
 (function ($, undefined) {
     $.definePollingEvent = function(eventName, newCfg) {
+
+        // throw exception if an event with the same name was defined already
+        if ($.event.special.hasOwnProperty(eventName)) {
+            throw new Error('Custom event ' + eventName + ' is already defined');
+        }
+
         // key for .data() to store the cached value
-        var valueCache,
+        var valueCache = eventName + ':prev',
 
             // id's for timeouts
             timeoutId,
@@ -48,14 +54,6 @@
 
         // define configuration
         $.extend(cfg, newCfg || {});
-
-        // throw exception if an event with the same name was defined already
-        if ($.event.special.hasOwnProperty(eventName)) {
-            throw new Error('Custom event ' + eventName + ' is already defined');
-        }
-
-        // key for .data() storage
-        valueCache = eventName + ':prev';
 
         // polling function
         function poll() {
