@@ -26,6 +26,11 @@
         background-color: #eeb;
     }
 
+    .ce {
+        border: solid 1px #666;
+        padding: 3px;
+    }
+
     .stencils .remove {
         display: none;
     }
@@ -57,11 +62,36 @@ $(function() {
         $('form').append( $('.stencils').find(what).clone() );
     });
 
+    $('.customcfg').click(function() {
+        // special config
+        $.fn.update.config({
+            elementSelector: 'input,textarea,select,div.ce',
+            valFn: function(el) {
+                switch(el.nodeName.toUpperCase()) {
+                    case 'DIV':
+                        return el.innerHTML;
+                    default:
+                        return $(el).val();
+                }
+            },
+            eqFn: function(oldVal, newVal, el) {
+                switch(el.nodeName.toUpperCase()) {
+                    case 'DIV':
+                        return ( $.trim(oldVal) === $.trim(newVal) );
+                    default:
+                        return oldVal === newVal;
+                }
+            }
+        });
+    });
+
     var i = 0;
     $('.deleg').click(function() {
         $('form').on('update.deleg' + i, (function(i) {
-            return function(e) {
-                console.log('Handler ' + i + ' on', e.target);
+            return function(e, data) {
+                console.log('Handler ' + i + ' on', e.target,
+                            'old val:', data.oldValue,
+                            'new val:', data.newValue);
             };
         })(i));
         $('.to-remove').append('<button class="unbind" data-num="' + i + '">Unbind deleg. handler ' + i + '</button>');
@@ -70,8 +100,10 @@ $(function() {
 
     $('.direct').click(function() {
         $('form').find('input').on('update.direct' + i, (function(i) {
-            return function(e) {
-                console.log('Direct handler ' + i + ' on', e.target);
+            return function(e, data) {
+                console.log('Direct handler ' + i + ' on', e.target,
+                            'old val:', data.oldValue,
+                            'new val:', data.newValue);
             };
         })(i));
         $('.to-remove').append('<button class="unbind" data-num="' + i + '">Unbind direct handler ' + i + '</button>');
@@ -97,6 +129,18 @@ $(function() {
         console.log('Source:', $.fn.update.debug()[1].toArray());
     });
 
+    $('.nopoolupdate').click(function() {
+        $.fn.update.config({
+            cacheTimeout: -1
+        });
+        console.log('Pool updates disabled');
+    });
+
+    $('.resetcfg').click(function() {
+        console.log('Config reset');
+        $.fn.update.reset();
+    });
+
 });
 </script>
 </head>
@@ -110,9 +154,13 @@ $(function() {
         <button class="add" data-add="hidden">Add hidden field</button>
         <button class="add" data-add="select">Add select</button>
         <button class="add" data-add="textarea">Add text area</button>
+        <button class="add" data-add="editable">Add content editable</button>
 
         <button class="deleg">Attach new handler to the FORM</button>
         <button class="direct">Attach new handler to INPUTS</button>
+        <button class="nopoolupdate">Stop updating polling pool</button>
+        <button class="customcfg">Custom config (support contenteditable)</button>
+        <button class="resetcfg">Reset config to default</button>
 
         <div class="to-remove"></div>
 
@@ -146,6 +194,11 @@ $(function() {
 
             <div class="textarea">
                 <textarea></textarea>
+                <div class="remove">×</div>
+            </div>
+
+            <div class="editable">
+                <div class="ce" contenteditable="true"><b>KEEP CALM</b> AND POLL THE POOL</div>
                 <div class="remove">×</div>
             </div>
         </div>
