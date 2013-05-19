@@ -1,7 +1,7 @@
 {
     "name": "update",
-    "title": "jQuery Polling Plugin",
-    "description": "jQuery special event plugin that adds 'update' event to track any changes on DOM nodes (e.g. form element updates) with full power of jQuery Event API",
+    "title": "jQuery DOM Polling Plugin",
+    "description": "Adds an 'update' event that can be precisely configured to track changes on DOM nodes (from simple form text updates to tracking anything like CSS position). This comes with the full power of jQuery Event API (including event delegation!). Plays nicely with resources, monitors DOM updates.",
     "keywords": [
         "update",
         "event",
@@ -13,7 +13,7 @@
         "monitoring",
         "validation"
     ],
-    "version": "2.1.0",
+    "version": "2.2.0",
     "author": {
         "name": "Max Shirshin",
         "email": "max.shirshin@gmail.com"
@@ -27,6 +27,7 @@
     "homepage": "https://github.com/ingdir/jquery-polling-plugin",
     "docs": "https://github.com/ingdir/jquery-polling-plugin",
     "download": "https://github.com/ingdir/jquery-polling-plugin",
+
     "dependencies": {
         "jquery": ">=1.4"
     }
