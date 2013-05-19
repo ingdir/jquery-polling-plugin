@@ -27,6 +27,7 @@
     }
 
     .ce {
+        display: inline-block;
         border: solid 1px #666;
         padding: 3px;
     }
@@ -57,88 +58,83 @@
 <script src="../jquery.update.js"></script>
 <script>
 $(function() {
-    $('.add').click(function() {
-        var what = '.' + $(this).attr('data-add');
-        $('form').append( $('.stencils').find(what).clone() );
-    });
-
-    $('.customcfg').click(function() {
-        // special config
-        $.fn.update.config({
-            elementSelector: 'input,textarea,select,div.ce',
-            valFn: function(el) {
-                switch(el.nodeName.toUpperCase()) {
-                    case 'DIV':
-                        return el.innerHTML;
-                    default:
-                        return $(el).val();
-                }
-            },
-            eqFn: function(oldVal, newVal, el) {
-                switch(el.nodeName.toUpperCase()) {
-                    case 'DIV':
-                        return ( $.trim(oldVal) === $.trim(newVal) );
-                    default:
-                        return oldVal === newVal;
-                }
-            }
+    $('.add')
+        .click(function() {
+            var what = '.' + $(this).attr('data-add');
+            $('form').append( $('.stencils').find(what).clone() );
         });
+
+    $.definePollingEvent('update');
+    $.definePollingEvent('updatePlus', {
+        elementSelector: 'input,textarea,select,div.ce',
+        valFn: function(el) {
+            switch(el.nodeName.toUpperCase()) {
+                case 'DIV':
+                    return el.innerHTML;
+                default:
+                    return $(el).val();
+            }
+        },
+        eqFn: function(oldVal, newVal, el) {
+            switch(el.nodeName.toUpperCase()) {
+                case 'DIV':
+                    return ( $.trim(oldVal) === $.trim(newVal) );
+                default:
+                    return oldVal === newVal;
+            }
+        }
     });
 
-    var i = 0;
-    $('.deleg').click(function() {
-        $('form').on('update.deleg' + i, (function(i) {
-            return function(e, data) {
-                console.log('Handler ' + i + ' on', e.target,
-                            'old val:', data.oldValue,
-                            'new val:', data.newValue);
-            };
-        })(i));
-        $('.to-remove').append('<button class="unbind" data-num="' + i + '">Unbind deleg. handler ' + i + '</button>');
-        i++;
-    });
+    var i = 0,
+        names = {update: 1, updatePlus: 1};
 
-    $('.direct').click(function() {
-        $('form').find('input').on('update.direct' + i, (function(i) {
-            return function(e, data) {
-                console.log('Direct handler ' + i + ' on', e.target,
-                            'old val:', data.oldValue,
-                            'new val:', data.newValue);
-            };
-        })(i));
-        $('.to-remove').append('<button class="unbind" data-num="' + i + '">Unbind direct handler ' + i + '</button>');
-        i++;
-    });
+    for (var n in names) {
+        if (names.hasOwnProperty(n)) {
+            (function(n) {
+                $('.' + n + ' .deleg').click(function() {
+                    $('form').on(n + '.deleg' + i, (function(i) {
+                        return function(e, data) {
+                            console.log(n + ' delegated handler ' + i + ' on', e.target,
+                                    'old val:', data.oldValue,
+                                    'new val:', data.newValue);
+                        };
+                    })(i));
+                    $('.' + n + ' .to-remove').append('<button class="unbind" data-num="' + i + '">Unbind delegated ' + n + ' handler ' + i + '</button>');
+                    i++;
+                });
 
-    $('.stencils').on('click', '.unbind', function(e) {
-        var what = $(e.target).attr('data-num');
-        $('form').off('update.deleg' + what);
-        $('input').off('update.direct' + what);
-        $(e.target).remove();
-    });
+                $('.' + n + ' .direct').click(function() {
+                    $('form').find('input').on(n + '.direct' + i, (function(i) {
+                        return function(e, data) {
+                            console.log(n + ' direct handler ' + i + ' on', e.target,
+                                    'old val:', data.oldValue,
+                                    'new val:', data.newValue);
+                        };
+                    })(i));
+                    $('.' + n + ' .to-remove').append('<button class="unbind" data-num="' + i + '">Unbind direct ' + n + ' handler ' + i + '</button>');
+                    i++;
+                });
+
+                $('.stencils .' + n).on('click', '.unbind', function(e) {
+                    var what = $(e.target).attr('data-num');
+                    $('form').off(n + '.deleg' + what);
+                    $('input').off(n + '.direct' + what);
+                    $(e.target).remove();
+                });
+
+                $('.' + n + ' .pool').click(function() {
+                    console.log('Pool for ' + n + ':', $.fn[n].debug()[0].toArray());
+                });
+
+                $('.' + n + ' .source').click(function() {
+                    console.log('Source for ' + n + ':', $.fn[n].debug()[1].toArray());
+                });
+            })(n);
+        }
+    }
 
     $('form').on('click', '.remove', function(e) {
         $(this).parent().remove();
-    });
-
-    $('.pool').click(function() {
-        console.log('Pool:', $.fn.update.debug()[0].toArray());
-    });
-
-    $('.source').click(function() {
-        console.log('Source:', $.fn.update.debug()[1].toArray());
-    });
-
-    $('.nopoolupdate').click(function() {
-        $.fn.update.config({
-            cacheTimeout: -1
-        });
-        console.log('Pool updates disabled');
-    });
-
-    $('.resetcfg').click(function() {
-        console.log('Config reset');
-        $.fn.update.reset();
     });
 
 });
@@ -156,16 +152,27 @@ $(function() {
         <button class="add" data-add="textarea">Add text area</button>
         <button class="add" data-add="editable">Add content editable</button>
 
-        <button class="deleg">Attach new handler to the FORM</button>
-        <button class="direct">Attach new handler to INPUTS</button>
-        <button class="nopoolupdate">Stop updating polling pool</button>
-        <button class="customcfg">Custom config (support contenteditable)</button>
-        <button class="resetcfg">Reset config to default</button>
+        <fieldset class="update">
+            <legend>update</legend>
+            <button class="deleg">Attach new handler to the FORM</button>
+            <button class="direct">Attach new handler to INPUTS</button>
 
-        <div class="to-remove"></div>
+            <div class="to-remove"></div>
 
-        <button class="pool">Show polling pool</button>
-        <button class="source">Show source pool</button>
+            <button class="pool">Show polling pool</button>
+            <button class="source">Show source pool</button>
+        </fieldset>
+
+        <fieldset class="updatePlus">
+            <legend>updatePlus</legend>
+            <button class="deleg">Attach new handler to the FORM</button>
+            <button class="direct">Attach new handler to INPUTS</button>
+
+            <div class="to-remove"></div>
+
+            <button class="pool">Show polling pool</button>
+            <button class="source">Show source pool</button>
+        </fieldset>
 
         <div class="hide">
             <div class="text">
