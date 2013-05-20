@@ -69,7 +69,7 @@ $.definePollingEvent('visibilityChange', {
 Now both events are ready to be used.
 We don't have to attach handlers directly to elements we're interested in, as event delegation is supported.
 So, it's not **form** and **body** that will be monitored, but their descendants matching the default
-"form element selector" (**input**,**select**,**textarea**) for the first event, and **div.container** selector for the second one.
+"form element selector" **input,select,textarea** for the first event, and **div.container** selector for the second one.
 ```javascript
 $('form').on('updateNoCase', function() {
     // all changes are monitored case-insensitively
