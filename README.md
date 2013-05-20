@@ -123,7 +123,7 @@ $.definePollingEvent('eventName', {
 ### Debugging And Testing
 There is a test page in the **test** folder that allows for interactive manual testing.
 
-For each **eventName**, there is a corresponding $.fn.**eventName**.debug() method available, which returns
+For each **eventName**, there is a corresponding $.fn.<b>eventName</b>.debug() method available, which returns
 an array of 2 internal caches, for debugging purposes only.
 
 ### TODO
