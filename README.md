@@ -128,5 +128,5 @@ an array of 2 internal caches, for debugging purposes only.
 
 ### TODO
   - build some autotests
-  - try if Mutation Events API is better to check for DOM updates
+  - see whether Mutation Events API is better to check for DOM updates
   - provide "automated timing" mode to determine polling delays dynamically according to actual browser workload
