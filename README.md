@@ -4,35 +4,38 @@ jQuery DOM Polling Plugin
 This jQuery plugin allows you create multiple custom events to track changes on DOM nodes (e.g. form element updates) utilizing the power of jQuery Event API.
 The resulting events can be used with `.on()` or `.bind()` methods, including event delegation, as if they were built-in events.
 
+In fact, this is a custom event factory.
 Each event you create must get a unique name and (optionally) a number of configuration parameters.
 
 Without configuration (by default) it is set to monitor form elements (inputs, selects, textareas) for all kinds of value changes,
 including programmatical changes and copy/paste events.
 
 You can configure both the elements to be tracked and the way element values are computed and compared.
-Actually, you can poll pretty much anything (position change, css property change, contenteditable changes etc.)
+Thus, you can monitor pretty much anything (CSS property change, contenteditable changes etc.)
 
-The solution is based on periodical polling. The plugin takes care of tracking descendant elements,
-even when the DOM tree is updated dynamically, and also performs periodical garbage collection on the polling queue.
+Internally, the plugin is based on periodical polling which also takes care of tracking descendant elements for proper
+event delegation, even when the DOM tree is updated dynamically, and also performs periodical garbage collection on the polling queue.
 
 Compatibility: jQuery 1.4.2+
 
-### Basic event creation and usage:
+### Basic Usage
 
-Let's define a new 'update' event with default parameters:
+Public API is `$.definePollingEvent`, which accepts new event name (required) and configuration object (optional, but recommended; see below).
+
+Let's define a new **update** event with default parameters:
 ```javascript
 $.definePollingEvent('update');
 ```
 
-Now, we have a new **update** event that can be used as a normal event:
+From now on, this can be used as a "normal" event:
 ```javascript
 $('form').on('update', function(e) {
     console.log('Element', e.target, 'has changed!');
 });
 ```
 
-Event handlers are only fired for actual changes, of course.
-Both old and new value are being passed as additional event data to the handler function:
+Event is fired once for every change detected. You can (obviuosly!) add as many handlers as you need.
+Both old and new value are passed as additional event data to the handler function:
 ```javascript
 $('input').on('update', function(e, data) {
     console.log('Old value:', data.oldValue);
@@ -40,9 +43,10 @@ $('input').on('update', function(e, data) {
 });
 ```
 
-### Configuring your events
+### Configuring Your Events
 
-You can define multiple events with different names and options:
+You can define multiple events with different names and options.
+In this case, we provide a custom comparison function to support case-insensitive comparisons.
 ```javascript
 $.definePollingEvent('updateNoCase', {
     eqFn: function(oldVal, newVal, el) {
@@ -51,7 +55,8 @@ $.definePollingEvent('updateNoCase', {
 });
 ```
 
-Add one more (the previous one, **updateNoCase**, it still there and uses its own options):
+Let's add one more (the previous one, **updateNoCase**, it still there and uses its own options).
+This one will monitor element's visibility, but only for elements that match the provided jQuery selector.
 ```javascript
 $.definePollingEvent('visibilityChange', {
     elementSelector: 'div.container',
@@ -61,7 +66,10 @@ $.definePollingEvent('visibilityChange', {
 });
 ```
 
-Now we can use both:
+Now both events are ready to be used.
+We don't have to attach handlers directly to elements we're interested in, as event delegation is supported.
+So, it's not **form** and **body** that will be monitored, but their descendants matching the default
+"form element selector" (**input,select,textarea**) for the first event, and **div.container** selector for the second one.
 ```javascript
 $('form').on('updateNoCase', function() {
     // all changes are monitored case-insensitively
@@ -72,7 +80,7 @@ $('body').on('visibilityChange', function() {
 });
 ```
 
-Each event you create must have a unique name; otherwise, an exception is thrown.
+Each event you define with `$.definePollingEvent` must have a unique name; otherwise, an exception is thrown.
 Here is the full list of available options, with their default values:
 
 ```javascript
@@ -112,10 +120,10 @@ $.definePollingEvent('eventName', {
 });
 ```
 
-### Debugging and testing
+### Debugging And Testing
 There is a test page in the **test** folder that allows for interactive manual testing.
 
-For each **eventName**, there is a corresponding $.fn.eventName.debug method available, it returns
+For each **eventName**, there is a corresponding $.fn.**eventName**.debug() method available, which returns
 an array of 2 internal caches, for debugging purposes only.
 
 ### TODO

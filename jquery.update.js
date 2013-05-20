@@ -8,10 +8,12 @@
 
 (function ($, undefined) {
     $.definePollingEvent = function(eventName, newCfg) {
-
+        if (eventName === undefined) {
+            throw new Error('DOM Polling plugin: event name is required');
+        }
         // throw exception if an event with the same name was defined already
         if ($.event.special.hasOwnProperty(eventName)) {
-            throw new Error('Custom event ' + eventName + ' is already defined');
+            throw new Error('DOM Polling plugin: custom event ' + eventName + ' is already defined');
         }
 
         // key for .data() to store the cached value
