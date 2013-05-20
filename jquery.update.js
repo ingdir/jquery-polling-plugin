@@ -2,7 +2,7 @@
  *
  * @author Max Shirshin
  * @description DOM polling plugin to track any type of change on any element, by creating native jQuery events
- * @version 3.0
+ * @version 3.0.0
  *
  */
 
