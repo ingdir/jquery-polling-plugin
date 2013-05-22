@@ -58,10 +58,12 @@
 <script src="../jquery.update.js"></script>
 <script>
 $(function() {
+    var $form = $('form');
+
     $('.add')
         .click(function() {
             var what = '.' + $(this).attr('data-add');
-            $('form').append( $('.stencils').find(what).clone() );
+            $form.append( $('.stencils').find(what).clone() );
         });
 
     $.definePollingEvent('update');
@@ -84,9 +86,20 @@ $(function() {
             }
         }
     });
+    $.definePollingEvent('heavy', {
+        elementSelector: 'td[test^=a1]:not(.pipa),input[type],textarea,select',
+        valFn: function(el) {
+            return $(el).val() + $(el).html();
+        },
+        cacheTimeout: 500
+    });
+
+    for (var t = 0; t < 100; t++) {
+        $('.bigtable').append('<table style="display:none"><tr><td test="a' + Math.ceil(Math.random() * 10000) + '"><b></b><div><span><strong></strong></span></div></td></tr></table>');
+    }
 
     var i = 0,
-        names = {update: 1, updatePlus: 1};
+        names = {update: 1, updatePlus: 1, heavy: 1};
 
     for (var n in names) {
         if (names.hasOwnProperty(n)) {
@@ -133,7 +146,7 @@ $(function() {
         }
     }
 
-    $('form').on('click', '.remove', function(e) {
+    $form.on('click', '.remove', function(e) {
         $(this).parent().remove();
     });
 
@@ -151,6 +164,7 @@ $(function() {
         <button class="add" data-add="select">Add select</button>
         <button class="add" data-add="textarea">Add text area</button>
         <button class="add" data-add="editable">Add content editable</button>
+        <button class="add" data-add="bigtable">Add 100 hidden tables</button>
 
         <fieldset class="update">
             <legend>update</legend>
@@ -165,6 +179,17 @@ $(function() {
 
         <fieldset class="updatePlus">
             <legend>updatePlus</legend>
+            <button class="deleg">Attach new handler to the FORM</button>
+            <button class="direct">Attach new handler to INPUTS</button>
+
+            <div class="to-remove"></div>
+
+            <button class="pool">Show polling pool</button>
+            <button class="source">Show source pool</button>
+        </fieldset>
+
+        <fieldset class="heavy">
+            <legend>heavy</legend>
             <button class="deleg">Attach new handler to the FORM</button>
             <button class="direct">Attach new handler to INPUTS</button>
 
@@ -208,6 +233,12 @@ $(function() {
                 <div class="ce" contenteditable="true"><b>KEEP CALM</b> AND POLL THE POOL</div>
                 <div class="remove">×</div>
             </div>
+
+            <div class="bigtable">
+                100 hidden tables :-)
+                <div class="remove">×</div>
+            </div>
+
         </div>
     </div>
 </body>

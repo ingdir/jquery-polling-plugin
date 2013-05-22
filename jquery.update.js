@@ -2,7 +2,7 @@
  *
  * @author Max Shirshin
  * @description DOM polling plugin to track any type of change on any element, by creating native jQuery events
- * @version 3.0.0
+ * @version 3.0.1
  *
  */
 
@@ -134,6 +134,15 @@
                 .add( $el.filter(cfg.elementSelector) );
         }
 
+        function refreshCacheASAP() {
+            // schedule cache refresh with a minimal timeout;
+            // this way we avoid successive incovations
+            // when event handlers are added in a cycle
+
+            clearTimeout(cacheTimeoutId);
+            cacheTimeoutId = setTimeout(refreshCache, 0);
+        }
+
         // provide a wrapper function similar to other events
         $.fn[eventName] = function(fn) {
             return fn ? this.bind(eventName, fn) : this.trigger(eventName);
@@ -147,26 +156,18 @@
         });
 
         $.event.special[eventName] = {
-
             setup: function() {
                 $source = $source.add(this);
                 addToPolling(this);
-            },
-
-            add: function() {
                 // start polling
                 timeoutId || poll();
-                // start refreshing cache periodically
-                cacheTimeoutId || refreshCache();
-            },
-
-            remove: function() {
-                clearTimeout(cacheTimeoutId);
-                refreshCache();
+                // schedule cache refresh to a minimal timeout
+                refreshCacheASAP();
             },
 
             teardown: function() {
                 $source = $source.not(this);
+                refreshCacheASAP();
                 // this is the last event handler for this element, so we remove .data() properties
                 $(this).removeData(valueCache);
             }
