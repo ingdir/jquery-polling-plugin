@@ -69,7 +69,7 @@ $.definePollingEvent('visibilityChange', {
 Now both events are ready to be used.
 We don't have to attach handlers directly to elements we're interested in, as event delegation is supported.
 So, it's not **form** and **body** that will be monitored, but their descendants matching the default
-"form element selector" (**input,select,textarea**) for the first event, and **div.container** selector for the second one.
+"form element selector" **input,select,textarea** for the first event, and **div.container** selector for the second one.
 ```javascript
 $('form').on('updateNoCase', function() {
     // all changes are monitored case-insensitively
@@ -123,10 +123,10 @@ $.definePollingEvent('eventName', {
 ### Debugging And Testing
 There is a test page in the **test** folder that allows for interactive manual testing.
 
-For each **eventName**, there is a corresponding $.fn.**eventName**.debug() method available, which returns
+For each **eventName**, there is a corresponding $.fn.<b>eventName</b>.debug() method available, which returns
 an array of 2 internal caches, for debugging purposes only.
 
 ### TODO
   - build some autotests
-  - try if Mutation Events API is better to check for DOM updates
+  - see whether Mutation Events API is better to check for DOM updates
   - provide "automated timing" mode to determine polling delays dynamically according to actual browser workload
